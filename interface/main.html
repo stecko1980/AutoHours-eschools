@@ -1,0 +1,231 @@
+<head>
+    <title>Створити години</title>
+    <script src="eel.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        var count_rules=0;
+        var count_holidays=0;
+        var rules=new Array();
+        var holidays=new Array();
+        var week={1:"Перший тиждень", 2:"Другий тиждень"};
+        var day={0:"Понеділок", 1:"Вівторок", 2:"Середа", 3:"Четвер", 4:"П'ятниця", 5:"Субота"};
+        function submitData(){
+            if($("input[name=url]").val()!="" &&
+                $("select[name=week]").val()!=null &&
+                $("input[name=start_date]").val()!="" &&
+                $("input[name=end_date]").val()!="" &&
+                count_rules!=0
+            ){
+                M.toast({html: 'Додано!'});
+                eel.submit_data($("input[name=url]").val(), $("select[name=subgroups]").val(), $("input[name=start_date]").val(), $("input[name=end_date]").val(), $("select[name=week]").val(), rules, holidays);
+            }else{
+                M.toast({html: 'Інвалідні дані!'});
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.datepicker');
+            var instances = M.Datepicker.init(elems, {"format":"yyyy-mm-dd", "firstDay":1});
+        });
+        function delete_elem(number_rule){
+            rules.splice(number_rule, 1);
+            $(".rules").html("");
+            $(".counter_rules").html(--count_rules);
+            if(count_rules==0) M.FormSelect.getInstance(document.getElementById("subgroups")).input.disabled=false;
+            if($("select[name=subgroups]").val()==0){
+                for(let i=0;i<count_rules;i++){
+                    $(".rules").append('<div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Правило №'+(i)+'</span><p>'+week[rules[i]['week']]+"<br>"+day[rules[i]['day']]+'<br>'+rules[i]['lesson']+' урок</p></div><div class="card-action"><a onclick="delete_elem('+(i)+');" href="#">Видалити</a></div></div></div>');
+                }
+            }else{
+                for(let i=0;i<count_rules;i++){
+                    $(".rules").append('<div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Правило №'+(i)+'</span><p>'+week[rules[i]['week']]+"<br>"+day[rules[i]['day']]+'<br>'+rules[i]['lesson']+' урок<br>'+rules[i]['subgroup']+' підгрупа</p></div><div class="card-action"><a onclick="delete_elem('+(i)+');" href="#">Видалити</a></div></div></div>');
+                }
+            }
+        }
+        function delete_holiday(number_holiday){
+            holidays.splice(number_holiday, 1);
+            $(".holidays").html("");
+            $(".counter_holidays").html(--count_holidays);
+            for(let i=0;i<count_holidays;i++){
+                $(".holidays").append('<div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Канікули №'+i+'</span><p>'+holidays[i]['start_date']+"-"+holidays[i]['end_date']+'</p></div><div class="card-action"><a onclick="delete_holiday('+i+');" href="#">Видалити</a></div></div></div>');
+            }
+        }
+        function createRule(){
+            if($('select[name=rule-week]').val()!=null &&
+                $('select[name=rule-day]').val()!=null &&
+                $('input[name=rule-time]').val()!="" &&
+                ($("select[name=subgroups]").val()==0||
+                $('input[name=subgroup]').val()!="")
+            ){
+                $(".counter_rules").html(++count_rules);
+                if(count_rules==1) M.FormSelect.getInstance(document.getElementById("subgroups")).input.disabled=true;
+                if($("select[name=subgroups]").val()==0){
+                    rules[count_rules-1]={"week":$('select[name=rule-week]').val(), "day":$('select[name=rule-day]').val(), "lesson":$('input[name=rule-time]').val()};
+                    $(".rules").append('<div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Правило №'+(count_rules-1)+'</span><p>'+$('select[name=rule-week] option:selected').text()+"<br>"+$('select[name=rule-day] option:selected').text()+'<br>'+$('input[name=rule-time]').val()+' урок</p></div><div class="card-action"><a onclick="delete_elem('+(count_rules-1)+');" href="#">Видалити</a></div></div></div>');
+                }else{
+                    rules[count_rules-1]={"week":$('select[name=rule-week]').val(), "day":$('select[name=rule-day]').val(), "lesson":$('input[name=rule-time]').val(), "subgroup":$('input[name=subgroup]').val()};
+                    $(".rules").append('<div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Правило №'+(count_rules-1)+'</span><p>'+$('select[name=rule-week] option:selected').text()+"<br>"+$('select[name=rule-day] option:selected').text()+'<br>'+$('input[name=rule-time]').val()+' урок<br>'+$('input[name=subgroup]').val()+' підгрупа</p></div><div class="card-action"><a onclick="delete_elem('+(count_rules-1)+');" href="#">Видалити</a></div></div></div>');
+                }
+                M.toast({html: 'Додано!'});
+            }else{
+                M.toast({html: 'Інвалідні дані!'});
+            }
+        }
+        function createHoliday(){
+            if($('input[name=start_holidays]').val()!=null &&
+                $('input[name=end_holidays]').val()!=null
+            ){
+                $(".counter_holidays").html(++count_holidays);
+                holidays[count_holidays-1]={"start_date":$('input[name=start_holidays]').val(), "end_date":$('input[name=end_holidays]').val()};
+                $(".holidays").append('<div class="col s12 m6"><div class="card blue-grey darken-1"><div class="card-content white-text"><span class="card-title">Канікули №'+(count_holidays-1)+'</span><p>'+$('input[name=start_holidays]').val()+"-"+$('input[name=end_holidays]').val()+'</p></div><div class="card-action"><a onclick="delete_holiday('+(count_holidays-1)+');" href="#">Видалити</a></div></div></div>');
+                M.toast({html: 'Додано!'});
+            }else{
+                M.toast({html: 'Інвалідні дані!'});
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('select');
+            var instances = M.FormSelect.init(elems, []);
+        });
+        function disable() {
+            document.getElementById("subgroup").disabled = true;
+        }
+        function enable() {
+            document.getElementById("subgroup").disabled = false;
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, []);
+        });
+    </script>
+</head>
+<body>
+<header>
+    <nav class="blue">
+        <div class="nav-wrapper">
+            <div class="container">
+                <a href="main.html" class="brand-logo center">AH</a>
+            </div>
+            <ul class="right">
+                <li><a href="#info" class="modal-trigger"><i class="material-icons">info</i></a></li>
+            </ul>
+        </div>
+    </nav>
+    <div id="info" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <h4>Інформація про AH(Auto-Hours) v.1.0</h4>
+            <p>
+                Дана програма написана на Python 3 з застосуванням бібліотек eel та Selenium.<br>
+                Інтерфейс написаний на HTML, CSS, JS з застосуванням фреймворків MaterializeCSS та jQuery.<br>
+                Автор: Стецко Андрій
+            </p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-red btn-flat">Закрити</a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+        <div class="input-field col s12">
+            <input id="url" name="url" type="text" class="validate">
+            <label for="url">URL додавання годин</label>
+        </div>
+        <div class="input-field col s12">
+            <select id="subgroups" onChange="if(this.options[this.selectedIndex].value==1)enable(); else disable();" name="subgroups">
+                <option value="1">Так</option>
+                <option value="0" selected>Ні</option>
+            </select>
+            <label>Предмет має поділ на групи?</label>
+        </div>
+        <div class="row">
+            <div class="input-field col s6">
+                <input name="start_date" type="text" placeholder="Початкова дата" class="datepicker">
+            </div>
+            <div class="input-field col s6">
+                <input name="end_date" type="text" placeholder="Кінцева дата" class="datepicker">
+            </div>
+        </div>
+        <div class="input-field col s12">
+            <select name="week">
+                <option disabled selected>Якій на момент початкової дати тиждень?</option>
+                <option value="1">Перший тиждень</option>
+                <option value="2">Другий тиждень</option>
+            </select>
+            <label>Якій на момент початкової дати тиждень?</label>
+        </div>
+        <div class="row">
+            <div class="rules" id="rules"></div>
+        </div>
+        <a class="waves-effect waves-light btn-flat modal-trigger" href="#modal1"><span data-badge-caption="правил" class="badge counter_rules">0</span>Створити правило</a>
+        <div id="modal1" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4>Створення правила</h4>
+                <p>
+                    <div class="input-field col s12">
+                        <select class="rule-week" name="rule-week">
+                            <option disabled selected>На який тиждень правило</option>
+                            <option value="1">Перший тиждень</option>
+                            <option value="2">Другий тиждень</option>
+                        </select>
+                        <label>Якій на данний момент тиждень?</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <select name="rule-day">
+                            <option disabled selected>На який день тиждня правило</option>
+                            <option value="0">Понеділок</option>
+                            <option value="1">Вівторок</option>
+                            <option value="2">Середа</option>
+                            <option value="3">Четвер</option>
+                            <option value="4">П'ятниця</option>
+                            <option value="5">Субота</option>
+                        </select>
+                        <label>На який день тиждня правило</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="rule-time" name="rule-time" type="number" class="validate">
+                        <label value=null for="rule-time">Номер уроку</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input value=null id="subgroup" name="subgroup" type="number" class="validate" disabled>
+                        <label for="subgroup">Номер групи</label>
+                    </div>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="createRule();">Створити та закрити</a>
+                <a href="#!" class="waves-effect waves-green btn-flat" onclick="createRule();">Створити та залишити відкритим</a>
+                <a href="#!" class="modal-close waves-effect waves-red btn-flat">Закрити</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="holidays"></div>
+        </div>
+        <a class="waves-effect waves-light btn-flat modal-trigger" href="#modal2"><span data-badge-caption="канукули" class="badge counter_holidays">0</span>Створити канікули</a>
+        <div id="modal2" class="modal bottom-sheet">
+            <div class="modal-content">
+                <h4>Створення канікули</h4>
+                <p>
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input name="start_holidays" type="text" placeholder="Початкова дата" class="datepicker">
+                        </div>
+                        <div class="input-field col s6">
+                            <input name="end_holidays" type="text" placeholder="Кінцева дата" class="datepicker">
+                        </div>
+                    </div>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="createHoliday();">Створити та закрити</a>
+                <a href="#!" class="waves-effect waves-green btn-flat" onclick="createHoliday();">Створити та залишити відкритим</a>
+                <a href="#!" class="modal-close waves-effect waves-red btn-flat">Закрити</a>
+            </div>
+        </div>
+        <center><button onclick="submitData();" class="btn-large waves-effect waves-light blue">Продовжити</button></center>
+    </div>
+</main>
+</body>
