@@ -10,7 +10,6 @@ eel.init("interface")
 @eel.expose
 def open_api_session(url):
     driver=webdriver.Chrome(executable_path="chromedriver.exe")
-    #driver.get("https://e-schools.info/login_")
     driver.get("https://e-schools.info/login?next="+url)
     input("Ввійдіть і натисніть Enter")
     return(driver)
@@ -30,6 +29,7 @@ def create_hour(driver, date1, number1, date2="", number2="", date3="", number3=
                 driver.find_element(By.NAME, "form-3-number").send_keys(number4)
     driver.execute_script('$(".datepicker").datepicker("hide");')
     driver.find_element(By.CLASS_NAME,"button_blue").click()
+    driver.get(driver.current_url)
 #функція на створення до 4х годин з поділом на групи
 @eel.expose
 def create_hour_subgroup(driver, date1, number1, subgroup1, date2="", number2="", subgroup2="", date3="", number3="", subgroup3="", date4="", number4="", subgroup4=""):
@@ -50,6 +50,7 @@ def create_hour_subgroup(driver, date1, number1, subgroup1, date2="", number2=""
                 Select(driver.find_element(By.NAME, "form-0-subgroup")).select_by_index(int(subgroup4))
     driver.execute_script('$(".datepicker").datepicker("hide");')
     driver.find_element(By.CLASS_NAME,"button_blue").click()
+    driver.get(driver.current_url)
 @eel.expose
 def submit_data(url, subgroups, start_date, end_date, start_week, data, holidays):
     driver=open_api_session(url)
